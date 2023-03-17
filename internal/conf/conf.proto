@@ -21,8 +21,25 @@ message Server {
     string addr = 2;
     google.protobuf.Duration timeout = 3;
   }
+  enum Env {
+    dev=0;
+    test=1;
+    prod=2;
+  }
+  message Log {
+    enum Level {
+      info=0;
+      warn=1;
+      error=2;
+    }
+    string path = 1;
+    Level level = 2;
+    int32 maxAge=3;
+  }
   HTTP http = 1;
   GRPC grpc = 2;
+  Env env = 3;
+  Log log =4;
 }
 
 message Data {
@@ -39,3 +56,6 @@ message Data {
   Database database = 1;
   Redis redis = 2;
 }
+
+
+
