@@ -20,8 +20,15 @@ func NewGreeterRepo(data *Data, logger log.Logger) biz.GreeterRepo {
 	}
 }
 
+type Team struct {
+	ID   string
+	Name string
+}
+
 func (r *greeterRepo) Save(ctx context.Context, g *biz.Greeter) (*biz.Greeter, error) {
-	return g, nil
+	var team []Team
+	err := r.data.gormDB.Debug().WithContext(ctx).Raw("select * from teams").Find(&team).Error
+	return g, err
 }
 
 func (r *greeterRepo) Update(ctx context.Context, g *biz.Greeter) (*biz.Greeter, error) {

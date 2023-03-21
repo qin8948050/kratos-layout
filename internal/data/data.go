@@ -16,6 +16,8 @@ import (
 // ProviderSet is data providers.
 var ProviderSet = wire.NewSet(NewData, NewGormDB, NewGreeterRepo)
 
+const DbType = "gorm"
+
 // Data .
 type Data struct {
 	gormDB *gorm.DB
@@ -157,15 +159,15 @@ func (c *customLogger) Trace(ctx context.Context, begin time.Time, fc func() (st
 func (c *customLogger) Printf(message string, data ...interface{}) {
 	switch len(data) {
 	case 0:
-		c.log.WithContext(c.ctx).Info(message)
+		c.log.WithContext(c.ctx).Infow("type", DbType, "msg", message)
 	case 1:
-		c.log.WithContext(c.ctx).Infof("gorm,src:%v", data[0])
+		c.log.WithContext(c.ctx).Infow("type", DbType, "src", data[0])
 	case 2:
-		c.log.WithContext(c.ctx).Infof("gorm,src:%v,duration:%v", data[0], data[1])
+		c.log.WithContext(c.ctx).Infow("type", DbType, "src", data[0], "duration", data[1])
 	case 3:
-		c.log.WithContext(c.ctx).Infof("gorm,src:%v,duration:%v,row:%v", data[0], data[1], data[2])
+		c.log.WithContext(c.ctx).Infow("type", DbType, "src", data[0], "duration", data[1], "rows", data[2])
 	case 4:
-		c.log.WithContext(c.ctx).Infof("gorm,src:%v,duration:%v,row:%v,sql:%v", data[0], data[1], data[2], data[3])
+		c.log.WithContext(c.ctx).Infow("type", DbType, "src", data[0], "duration", data[1], "rows", data[2], "sql", data[3])
 	}
 	return
 }

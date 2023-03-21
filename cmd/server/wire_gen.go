@@ -8,10 +8,10 @@ package main
 
 import (
 	"github.com/go-kratos/kratos/v2"
-	"github.com/go-kratos/kratos/v2/log"
 	"github.com/qin8948050/kratos-layout/internal/biz"
 	"github.com/qin8948050/kratos-layout/internal/conf"
 	"github.com/qin8948050/kratos-layout/internal/data"
+	"github.com/qin8948050/kratos-layout/internal/pkg/log"
 	"github.com/qin8948050/kratos-layout/internal/server"
 	"github.com/qin8948050/kratos-layout/internal/service"
 )
@@ -23,7 +23,8 @@ import (
 // Injectors from wire.go:
 
 // wireApp init kratos application.
-func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*kratos.App, func(), error) {
+func wireApp(confServer *conf.Server, confData *conf.Data) (*kratos.App, func(), error) {
+	logger := log.NewLogger()
 	db, err := data.NewGormDB(confData, logger)
 	if err != nil {
 		return nil, nil, err
