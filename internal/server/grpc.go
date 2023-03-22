@@ -2,31 +2,26 @@ package server
 
 import (
 	"github.com/go-kratos/kratos/v2/middleware/logging"
-	"github.com/go-kratos/kratos/v2/middleware/metadata"
+	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	v1 "github.com/qin8948050/kratos-layout/api/helloworld/v1"
 	"github.com/qin8948050/kratos-layout/internal/conf"
 	"github.com/qin8948050/kratos-layout/internal/pkg/trace"
 	"github.com/qin8948050/kratos-layout/internal/service"
+	tracesdk "go.opentelemetry.io/otel/sdk/trace"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 )
 
 // NewGRPCServer new a gRPC server.
-func NewGRPCServer(c *conf.Server, greeter *service.GreeterService, logger log.Logger) *grpc.Server {
-	err := trace.InitTracer("http://10.8.132.173:14268/api/traces")
-	if err != nil {
-		panic(err)
-	}
+func NewGRPCServer(c *conf.Server, greeter *service.GreeterService, logger log.Logger, provider *tracesdk.TracerProvider) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
-			metadata.Server(),
 			recovery.Recovery(),
-			logging.Server(logger),
 			tracing.Server(),
-			metadata.Server(),
+			trace.ReplyHeader(),
+			logging.Server(logger),
 		),
 	}
 	if c.Grpc.Network != "" {

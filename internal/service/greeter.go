@@ -25,6 +25,10 @@ func (s *GreeterService) SayHello(ctx context.Context, in *v1.HelloRequest) (*v1
 	if err != nil {
 		return nil, err
 	}
+	/*	fmt.Println(tracing.TraceID()(ctx).(string))
+		metadata.Metadata{}.Set("traceID", tracing.TraceID()(ctx).(string))
+		a := metadata.Metadata{}.Get("traceID")
+		fmt.Println(a)*/
 	s.log.WithContext(ctx).Infow("logd test", "fefee")
 	return &v1.HelloReply{Message: "Hello " + g.Hello}, nil
 }

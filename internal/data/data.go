@@ -6,10 +6,12 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	"github.com/qin8948050/kratos-layout/internal/conf"
+	tracesdk "go.opentelemetry.io/otel/sdk/trace"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/utils"
+	"gorm.io/plugin/opentelemetry/tracing"
 	"time"
 )
 
@@ -31,14 +33,14 @@ func NewData(logger log.Logger, db *gorm.DB) (*Data, func(), error) {
 	return &Data{gormDB: db}, cleanup, nil
 }
 
-func NewGormDB(c *conf.Data, logger log.Logger) (*gorm.DB, error) {
+func NewGormDB(c *conf.Data, logger log.Logger, provider *tracesdk.TracerProvider) (*gorm.DB, error) {
 	dsn := c.Database.Source
 	helper := log.NewHelper(logger)
 	db, err := gorm.Open(mysql.Open(dsn), gormConfig(helper))
 	if err != nil {
 		return nil, err
 	}
-
+	db.Use(tracing.NewPlugin())
 	sqlDB, err := db.DB()
 	if err != nil {
 		return nil, err

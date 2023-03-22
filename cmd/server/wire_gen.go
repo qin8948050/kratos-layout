@@ -12,6 +12,7 @@ import (
 	"github.com/qin8948050/kratos-layout/internal/conf"
 	"github.com/qin8948050/kratos-layout/internal/data"
 	"github.com/qin8948050/kratos-layout/internal/pkg/log"
+	"github.com/qin8948050/kratos-layout/internal/pkg/trace"
 	"github.com/qin8948050/kratos-layout/internal/server"
 	"github.com/qin8948050/kratos-layout/internal/service"
 )
@@ -25,7 +26,12 @@ import (
 // wireApp init kratos application.
 func wireApp(confServer *conf.Server, confData *conf.Data) (*kratos.App, func(), error) {
 	logger := log.NewLogger()
-	db, err := data.NewGormDB(confData, logger)
+	string2 := trace.GetUrl()
+	tracerProvider, err := trace.NewTracer(string2)
+	if err != nil {
+		return nil, nil, err
+	}
+	db, err := data.NewGormDB(confData, logger, tracerProvider)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -36,8 +42,8 @@ func wireApp(confServer *conf.Server, confData *conf.Data) (*kratos.App, func(),
 	greeterRepo := data.NewGreeterRepo(dataData, logger)
 	greeterUsecase := biz.NewGreeterUsecase(greeterRepo, logger)
 	greeterService := service.NewGreeterService(greeterUsecase, logger)
-	grpcServer := server.NewGRPCServer(confServer, greeterService, logger)
-	httpServer := server.NewHTTPServer(confServer, greeterService, logger)
+	grpcServer := server.NewGRPCServer(confServer, greeterService, logger, tracerProvider)
+	httpServer := server.NewHTTPServer(confServer, greeterService, logger, tracerProvider)
 	app := newApp(logger, grpcServer, httpServer)
 	return app, func() {
 		cleanup()
